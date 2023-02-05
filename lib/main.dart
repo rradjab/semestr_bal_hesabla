@@ -30,11 +30,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int calculateRule = 0;
+  String calculateRule = 'Əmsallı (0.6, 0.4) (BDU)';
 
-  int execiseCount = 0;
+  int execiseCount = 3;
   int laboratoryCount = 0;
-  int colliquiumCount = 0;
+  double laboratoryCountItem = 0;
+  int colliquiumCount = 3;
   bool courseWork = false;
 
   int exerciseScore = 0;
@@ -42,21 +43,20 @@ class _MyHomePageState extends State<MyHomePage> {
   int colliquiumScore = 0;
   int freeWorkScore = 0;
   int courseWorkScore = 0;
+  int freeCourseWorkCount = 1;
+  String courseWorkText = "Sərbəst iş balı";
 
-  int lessonHour = 0;
+  int lessonHour = 15;
   int missedHour = 0;
 
   int counter = 0;
 
-  String sex = '';
+  String sex = 'Kişi';
 
-  void _incrementCounter() {
-    setState(() {
-      counter++;
-    });
-  }
+  List<int> execiseItem = List<int>.generate(9, (index) => 0);
+  List<int> freeCourseWorkItem = List<int>.generate(2, (index) => 0);
+  List<int> colliquiumItem = List<int>.generate(3, (index) => 0);
 
-  String dropdownValue = '0';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -96,6 +96,29 @@ class _MyHomePageState extends State<MyHomePage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        const Text("Hesab qaydası"),
+                        DropdownButton<String>(
+                          value: calculateRule,
+                          onChanged: (newValue) {
+                            setState(() {
+                              calculateRule = newValue.toString();
+                            });
+                          },
+                          items: <String>[
+                            'Əmsallı (0.6, 0.4) (BDU)',
+                            'Orta ədədin tapılması ilə'
+                          ].map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         const Text("Məşğələ dərslərinin sayı"),
                         DropdownButton<String>(
                           value: execiseCount.toString(),
@@ -119,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         const Text("Laboratoriyaların sayı"),
                         DropdownButton<String>(
-                          value: dropdownValue,
+                          value: laboratoryCount.toString(),
                           onChanged: (newValue) {
                             setState(() {
                               laboratoryCount = int.parse(newValue.toString());
@@ -140,17 +163,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         const Text("Kollikvium ballarının sayı"),
                         DropdownButton<String>(
-                          value: dropdownValue,
+                          value: colliquiumCount.toString(),
                           onChanged: (newValue) {
                             setState(() {
-                              dropdownValue = newValue!;
-                              _incrementCounter();
+                              colliquiumCount = int.parse(newValue.toString());
                             });
                           },
-                          items: List.generate(2, (index) {
-                            int i = index + 2;
-                            debugPrint(i.toString());
-                            return index.toString();
+                          items: List<String>.generate(2, (index) {
+                            return (index + 2).toString();
                           }).map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -167,8 +187,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         Switch(
                             value: courseWork,
                             onChanged: (value) {
-                              courseWork = value;
-                              _incrementCounter();
+                              setState(() {
+                                courseWork = value;
+                                courseWorkText = value
+                                    ? 'Sərbəst/Kurs işi balları'
+                                    : 'Sərbəst iş balı';
+                                freeCourseWorkCount = value ? 2 : 1;
+                              });
                             })
                       ],
                     ),
@@ -203,15 +228,15 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: List<Widget>.generate(
                               execiseCount,
                               (index) => DropdownButton<String>(
-                                value: dropdownValue,
+                                value: execiseItem[index].toString(),
                                 onChanged: (newValue) {
                                   setState(() {
-                                    dropdownValue = newValue!;
-                                    _incrementCounter();
+                                    execiseItem[index] =
+                                        int.parse(newValue.toString());
                                   });
                                 },
                                 items: List.generate(
-                                        5, (index) => index.toString())
+                                        11, (index) => index.toString())
                                     .map<DropdownMenuItem<String>>(
                                         (String value) {
                                   return DropdownMenuItem<String>(
@@ -252,15 +277,17 @@ class _MyHomePageState extends State<MyHomePage> {
                             ),
                           ),
                           DropdownButton<String>(
-                            value: dropdownValue,
+                            value: laboratoryCountItem.toString(),
                             onChanged: (newValue) {
                               setState(() {
-                                dropdownValue = newValue!;
-                                _incrementCounter();
+                                laboratoryCountItem =
+                                    double.parse(newValue.toString());
                               });
                             },
-                            items: List.generate(5, (index) => index.toString())
-                                .map<DropdownMenuItem<String>>((String value) {
+                            items: List.generate(
+                              (laboratoryCount * 2) + 1,
+                              (index) => (index * 0.5).toString(),
+                            ).map<DropdownMenuItem<String>>((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
                                 child: Text(value),
@@ -268,7 +295,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             }).toList(),
                           ),
                           const Text(
-                              "nə bilim nə \nnə bilim nə \nnə bilim nə \nnə bilim nə"),
+                              textAlign: TextAlign.center,
+                              "Laboratoriya balın \nTam - 1 bal \nNatamam - 0.5 bal \nolma halları var"),
                         ],
                       ),
                     ),
@@ -300,16 +328,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     Wrap(
                       spacing: 30.0,
                       children: List<Widget>.generate(
-                        3,
+                        colliquiumCount,
                         (index) => DropdownButton<String>(
-                          value: dropdownValue,
+                          value: colliquiumItem[index].toString(),
                           onChanged: (newValue) {
                             setState(() {
-                              dropdownValue = newValue!;
-                              _incrementCounter();
+                              colliquiumItem[index] =
+                                  int.parse(newValue.toString());
                             });
                           },
-                          items: List.generate(5, (index) => index.toString())
+                          items: List.generate(11, (index) => index.toString())
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -338,25 +366,25 @@ class _MyHomePageState extends State<MyHomePage> {
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
                   children: [
-                    const Center(
+                    Center(
                       child: Text(
-                        "Sərbəst/Kurs işi balları",
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        courseWorkText,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
                     Wrap(
                       spacing: 30.0,
                       children: List<Widget>.generate(
-                        2,
+                        freeCourseWorkCount,
                         (index) => DropdownButton<String>(
-                          value: dropdownValue,
+                          value: freeCourseWorkItem[index].toString(),
                           onChanged: (newValue) {
                             setState(() {
-                              dropdownValue = newValue!;
-                              _incrementCounter();
+                              freeCourseWorkItem[index] =
+                                  int.parse(newValue.toString());
                             });
                           },
-                          items: List.generate(5, (index) => index.toString())
+                          items: List.generate(11, (index) => index.toString())
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -393,17 +421,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     ),
                     Wrap(
                       spacing: 30.0,
-                      children: List<Widget>.generate(
-                        2,
-                        (index) => DropdownButton<String>(
-                          value: dropdownValue,
+                      children: [
+                        DropdownButton<String>(
+                          value: missedHour.toString(),
                           onChanged: (newValue) {
                             setState(() {
-                              dropdownValue = newValue!;
-                              _incrementCounter();
+                              missedHour = int.parse(newValue.toString());
                             });
                           },
-                          items: List.generate(5, (index) => index.toString())
+                          items: List.generate(
+                                  lessonHour + 1, (index) => index.toString())
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
@@ -411,7 +438,24 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
                           }).toList(),
                         ),
-                      ),
+                        DropdownButton<String>(
+                          value: lessonHour.toString(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              missedHour = 0;
+                              lessonHour = int.parse(newValue.toString());
+                            });
+                          },
+                          items: List.generate(
+                                  8, (index) => ((index + 1) * 15).toString())
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -428,6 +472,9 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ElevatedButton(
                 onPressed: () {
                   setState(() {
+                    //Hesablama burada gedir
+                    counter = 69;
+
                     showDialog(
                       context: context,
                       builder: (context) {
@@ -452,7 +499,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                         }).toList(),
                                         onChanged: (value) {
                                           setState(() {
-                                            sex = value ?? '';
+                                            sex = value ?? 'Kişi';
                                           });
                                         },
                                       ),
@@ -500,7 +547,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     );
                   });
                 },
-                child: const Text("Nağayracuğa?"),
+                child: const Text("Hesabla"),
               ),
             ),
           ),
